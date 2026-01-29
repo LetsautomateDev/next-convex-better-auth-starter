@@ -19,7 +19,7 @@ export default function AuthLayout({
   if (isPending || isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <Spinner size="lg" />
+        <Spinner className="size-8" />
       </div>
     );
   }

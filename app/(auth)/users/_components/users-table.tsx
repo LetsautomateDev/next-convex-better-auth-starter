@@ -117,7 +117,15 @@ export function UsersTable() {
                 </TableCell>
               </TableRow>
             ) : (
-              users.map((user) => (
+              users.map((user: {
+                _id: string;
+                email: string;
+                firstName: string;
+                lastName: string;
+                status: string;
+                lastLoginAt?: number;
+                roles: Array<{ _id: string; name: string }>;
+              }) => (
                 <TableRow key={user._id}>
                   <TableCell className="font-medium">{user.email}</TableCell>
                   <TableCell>
@@ -130,7 +138,7 @@ export function UsersTable() {
                   </TableCell>
                   <TableCell>
                     <div className="flex flex-wrap gap-1">
-                      {user.roles.map((role) => (
+                      {user.roles.map((role: { _id: string; name: string }) => (
                         <Badge key={role._id} variant="outline">
                           {role.name}
                         </Badge>
