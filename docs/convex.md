@@ -316,6 +316,123 @@ crons.interval("delete inactive users", { hours: 2 }, internal.crons.empty, {});
 export default crons;
 ```
 
+## Workpool Guidelines
+
+When multiple users can trigger the same operation simultaneously (e.g., sending emails, processing payments, API calls), use **Convex Workpool** to manage parallelism and retries.
+
+### Installation
+
+```bash
+bun add @convex-dev/workpool
+```
+
+### Configuration
+
+Add workpool to `convex/convex.config.ts`:
+
+```typescript
+import { defineApp } from "convex/server";
+import workpool from "@convex-dev/workpool/convex.config.js";
+
+const app = defineApp();
+app.use(workpool, { name: "emailWorkpool" });
+app.use(workpool, { name: "apiWorkpool" });
+export default app;
+```
+
+### When to Use Workpool
+
+- **Multiple users triggering concurrent operations** - e.g., many users sending emails at once
+- **External API calls with rate limits** - throttle requests to avoid hitting limits
+- **Retryable operations** - automatically retry failed actions with backoff
+- **Separating workloads by priority** - critical emails vs. background scraping
+- **Reducing OCC errors** - limit parallelism for mutations that write to same data
+
+### Basic Usage
+
+```typescript
+import { Workpool } from "@convex-dev/workpool";
+import { components } from "./_generated/api";
+
+const emailPool = new Workpool(components.emailWorkpool, {
+  maxParallelism: 10,
+});
+
+export const sendWelcomeEmail = mutation({
+  args: { userId: v.id("users") },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    await emailPool.enqueueAction(ctx, internal.email.send, {
+      userId: args.userId,
+    });
+    return null;
+  },
+});
+```
+
+### Retries with Backoff
+
+For idempotent actions (safe to retry), configure automatic retries:
+
+```typescript
+const pool = new Workpool(components.emailWorkpool, {
+  maxParallelism: 10,
+  retryActionsByDefault: true,
+  defaultRetryBehavior: {
+    maxAttempts: 3,
+    initialBackoffMs: 1000,
+    base: 2, // exponential backoff
+  },
+});
+
+// Override per-call
+await pool.enqueueAction(ctx, internal.api.call, args, {
+  retry: { maxAttempts: 5, initialBackoffMs: 500, base: 2 },
+});
+```
+
+### Completion Handlers
+
+React to job completion (success, failure, or cancellation):
+
+```typescript
+import { vOnCompleteValidator } from "@convex-dev/workpool";
+
+await pool.enqueueAction(ctx, internal.email.send, args, {
+  onComplete: internal.email.handleResult,
+  context: { userId: args.userId },
+});
+
+export const handleResult = internalMutation({
+  args: vOnCompleteValidator(v.object({ userId: v.id("users") })),
+  handler: async (ctx, { context, result }) => {
+    if (result.kind === "success") {
+      await ctx.db.patch(context.userId, { emailSent: true });
+    } else if (result.kind === "failed") {
+      console.error("Email failed:", result.error);
+    }
+  },
+});
+```
+
+### Batching
+
+Enqueue multiple jobs efficiently:
+
+```typescript
+await pool.enqueueActionBatch(ctx, internal.notifications.send, [
+  { userId: user1 },
+  { userId: user2 },
+  { userId: user3 },
+]);
+```
+
+### Parallelism Guidelines
+
+- **Free plan**: Keep total maxParallelism across all pools ≤ 20
+- **Pro plan**: Keep total maxParallelism across all pools ≤ 100
+- Use `maxParallelism: 1` to serialize operations that conflict with each other
+
 ## File Storage Guidelines
 
 - Use `ctx.storage.getUrl()` for signed URLs (returns `null` if file doesn't exist)
