@@ -2,11 +2,11 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { SignInForm } from "./_components/sign-in-form";
 import { useRbac } from "@/app/providers/rbac-provider";
+import { ResetPasswordForm } from "./_components/reset-password-form";
 import { Card, CardContent } from "@/components/ui/card";
 
-export default function SignInPage() {
+export default function ResetPasswordPage() {
   const router = useRouter();
   const { isLoading, hasSession } = useRbac();
 
@@ -33,7 +33,7 @@ export default function SignInPage() {
 
         <Card className="border-zinc-800 bg-white/95 shadow-xl backdrop-blur-sm">
           <CardContent className="pt-6">
-            <SignInForm />
+            <ResetPasswordForm />
           </CardContent>
         </Card>
       </div>
