@@ -19,7 +19,7 @@ export function ResetPasswordEmail({ resetUrl }: ResetPasswordEmailProps) {
       <Body style={main}>
         <Container style={container}>
           <Section style={logoSection}>
-            <Text style={logoText}>Entalpi</Text>
+            <Text style={logoText}>Starter</Text>
           </Section>
           <Section style={section}>
             <Text style={title}>Reset hasła</Text>

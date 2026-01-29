@@ -23,6 +23,24 @@ export const listRoles = securedQuery({
   },
 });
 
+export const listRolesForInvite = securedQuery({
+  permission: "user.create",
+  args: {},
+  returns: v.array(
+    v.object({
+      _id: v.id("roles"),
+      name: v.string(),
+    })
+  ),
+  handler: async (ctx) => {
+    const roles = await ctx.db.query("roles").collect();
+    return roles.map((role) => ({
+      _id: role._id,
+      name: role.name,
+    }));
+  },
+});
+
 export const listPermissions = securedQuery({
   permission: "rbac.manage",
   args: {},

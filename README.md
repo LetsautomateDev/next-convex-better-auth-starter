@@ -1,4 +1,4 @@
-# Entalpi
+# Next.js + Convex + Better Auth Starter
 
 Next.js + Convex + Better Auth + RBAC boilerplate
 
@@ -7,7 +7,6 @@ Next.js + Convex + Better Auth + RBAC boilerplate
 ```bash
 bun install
 bun run dev
-bunx convex dev
 ```
 
 ## Zmienne środowiskowe
@@ -29,9 +28,9 @@ EMAIL_FROM=noreply@twoja-domena.com
 
 | Zmienna | Opis | Przykład |
 |---------|------|----------|
-| `SITE_URL` | URL frontendu (dla linków w emailach) | `http://localhost:3000` lub `https://app.entalpi.pl` |
+| `SITE_URL` | URL frontendu (dla linków w emailach) | `http://localhost:3000` |
 | `RESEND_API_KEY` | Klucz API Resend | `re_xxxxxxxxxx` |
-| `EMAIL_FROM` | Adres nadawcy emaili | `noreply@mail.entalpi.pl` |
+| `EMAIL_FROM` | Adres nadawcy emaili | `noreply@twoja-domena.com` |
 
 ## Inicjalizacja RBAC
 
@@ -45,11 +44,26 @@ Utworzy to:
 - Role: `administrator`, `user`
 - Podstawowe uprawnienia: `rbac.manage`, `user.list`, `user.create`, `user.update`, `user.delete`
 
+## Utworzenie pierwszego administratora
+
+System jest oparty na zaproszeniach (invitation-only), więc potrzebujesz ręcznie utworzyć pierwszego administratora:
+
+```bash
+bunx convex run seed:seedFirstAdmin '{"email":"admin@example.com","password":"Test123456!","firstName":"Admin","lastName":"User"}'
+```
+
+Zamień dane na swoje. Komenda:
+1. Uruchomi `seedRbac` (jeśli jeszcze nie było)
+2. Utworzy użytkownika w Better Auth
+3. Utworzy powiązanego użytkownika w tabeli Convex
+4. Przypisze mu rolę `administrator`
+
+Po wykonaniu możesz zalogować się na `/auth/sign-in`.
+
 ## Struktura auth
 
 - `/auth/sign-in` - logowanie
 - `/auth/reset-password` - reset hasła
 - `/auth/reset-password/confirm` - ustawienie nowego hasła
-- `/auth/sign-up` - wyłączone (redirect do sign-in)
 
 Użytkownicy są zapraszani przez administratora (invitation-only system).

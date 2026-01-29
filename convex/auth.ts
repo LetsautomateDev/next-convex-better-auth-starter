@@ -65,6 +65,19 @@ export const createAuthOptions = (ctx: GenericCtx<DataModel>) => {
       },
     },
     plugins: [convex()],
+    databaseHooks: {
+      session: {
+        create: {
+          after: async (session) => {
+            // Update lastLoginAt when a new session is created (user logs in)
+            const actionCtx = requireActionCtx(ctx);
+            await actionCtx.runMutation(internal.users.updateLastLoginInternal, {
+              visitorId: session.userId,
+            });
+          },
+        },
+      },
+    },
     hooks: {
       before: createAuthMiddleware(async (middlewareCtx) => {
         // Block login for blocked users
@@ -89,23 +102,6 @@ export const createAuthOptions = (ctx: GenericCtx<DataModel>) => {
               "Konto zostało zablokowane. Skontaktuj się z administratorem.",
           });
         }
-      }),
-      after: createAuthMiddleware(async (middlewareCtx) => {
-        // Update last login after successful sign-in
-        if (middlewareCtx.path !== "/sign-in/email") {
-          return;
-        }
-
-        const responseContext = middlewareCtx.context;
-        const user = responseContext?.user;
-        if (!user?.id) {
-          return;
-        }
-
-        const actionCtx = requireActionCtx(ctx);
-        await actionCtx.runMutation(internal.users.updateLastLoginInternal, {
-          visitorId: user.id,
-        });
       }),
     },
   } satisfies BetterAuthOptions;

@@ -16,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Entalpi",
-  description: "Entalpi - system zarządzania",
+  title: "Next Convex Better Auth Starter",
+  description: "Starter template with Next.js, Convex, and Better Auth",
 };
 
 export default function RootLayout({

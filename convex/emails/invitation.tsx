@@ -19,11 +19,11 @@ export function InvitationEmail({ resetUrl }: InvitationEmailProps) {
       <Body style={main}>
         <Container style={container}>
           <Section style={logoSection}>
-            <Text style={logoText}>Entalpi</Text>
+            <Text style={logoText}>Starter</Text>
           </Section>
           <Section style={section}>
             <Text style={title}>Zaproszenie do systemu</Text>
-            <Text style={text}>Zostałeś zaproszony do systemu Entalpi.</Text>
+            <Text style={text}>Zostałeś zaproszony do systemu.</Text>
             <Text style={text}>
               Kliknij poniższy przycisk, aby ustawić hasło i aktywować swoje
               konto.

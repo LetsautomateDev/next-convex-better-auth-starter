@@ -40,7 +40,7 @@ export async function sendInvitationEmail(
   await resend.sendEmail(ctx, {
     from: emailFrom,
     to,
-    subject: "Zaproszenie do systemu Entalpi",
+    subject: "Zaproszenie do systemu",
     html,
   });
 }
